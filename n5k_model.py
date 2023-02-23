@@ -56,7 +56,7 @@ class MyDataset(torch.utils.data.Dataset):
         for line in data_txt:
             line = line.strip()
             words = line.split(',')
-            if (os.path.isfile(img_path + words[0])):
+            if (os.path.isfile(image_path + words[0])):
                 imgs.append((words[0], float(words[1].strip())))
         self.imgs = imgs
         self.transform = transform
@@ -131,7 +131,7 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_ince
                 model.eval()   # Set model to evaluate mode
                 print('eval')
             running_loss = 0.0
-            runing_loss_per = 0.0
+            #runing_loss_per = 0.0
             #running_corrects = 0
 
             # Iterate over data.
@@ -159,12 +159,13 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_ince
                         loss = loss1 + 0.4*loss2
                     else:
                         outputs = model(inputs)
-                        loss = criterion(outputs, labels)
+                        loss = criterion(outputs.reshape(-1), labels)
+			#loss = criterion(outputs, labels)
 
                    # _, preds = torch.max(outputs, 1)
                    # print(outputs.shape)
                    # print(labels.shape)
-                    loss_per = mean_absolute_percentage_error(outputs.reshape(-1), labels)
+                   # loss_per = mean_absolute_percentage_error(outputs.reshape(-1), labels)
                     # backward + optimize only if in training phase
                     if phase == 'train':
                         loss.backward()
@@ -174,16 +175,17 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_ince
                 #print(loss.item())
                 #print(inputs.size(0))
                 running_loss += loss.item() * inputs.size(0)
-                runing_loss_per += loss_per.item()
+                #runing_loss_per += loss_per.item()
                 #running_corrects += torch.sum(preds == labels.data)
                 i += 1
                 print("process{0}%".format((i+1)*100/len(dataloaders[phase])), end="\r")
                 
             epoch_loss = running_loss / len(dataloaders[phase].dataset)
-            epoch_acc = runing_loss_per / len(dataloaders[phase].dataset)
+            #epoch_acc = runing_loss_per / len(dataloaders[phase].dataset)
             #epoch_acc = running_corrects.double() / len(dataloaders[phase].dataset)
 
-            print('{} Loss: {:.4f} MAE per: {:.4f}'.format(phase, epoch_loss, epoch_acc))
+            print('{} Loss: {:.4f} MAPE'.format(phase, epoch_loss))
+            #print('{} Loss: {:.4f} MAE per: {:.4f}'.format(phase, epoch_loss, epoch_acc))
             time_elapsed = time.time() - since
             print(time_elapsed)
             print('complete in {:.0f}m {:.0f}s' .format(time_elapsed // 60, time_elapsed % 60))
@@ -220,26 +222,35 @@ num_epochs = args.epoch
 # Flag for feature extracting. When False, we finetune the whole model,
 #   when True we only update the reshaped layer params
  
-def initialize_model(model_pre, feature_extract = False, use_pretrained=True):
+def initialize_model(model_name, model_pre, feature_extract = False, use_pretrained=True):
     model_ft = model_pre
     set_parameter_requires_grad(model_ft, feature_extract)
     # Handle the auxilary net
     #num_ftrs = model_ft.AuxLogits.fc.in_features
     #model_ft.AuxLogits.fc = nn.Linear(num_ftrs, 1)
     # Handle the primary net
-    num_ftrs = model_ft.fc.in_features
-    input_layer = [] 
-    input_layer.append(nn.Linear(num_ftrs, 4096))
-    input_layer.append(nn.Linear(4096, 4096))
-    input_layer.append(nn.Linear(4096, 1))
-    ffc = nn.Sequential(*input_layer)
-    model_ft.fc = ffc
+    if model_name.startswith('swin'):
+        num_ftrs = model_ft.head.in_features
+        input_layer = []
+        input_layer.append(nn.Linear(num_ftrs, 4096))
+        input_layer.append(nn.Linear(4096, 4096))
+        input_layer.append(nn.Linear(4096, 1))
+        ffc = nn.Sequential(*input_layer)
+        model_ft.head = ffc
+    else:
+        num_ftrs = model_ft.fc.in_features
+        input_layer = [] 
+        input_layer.append(nn.Linear(num_ftrs, 4096))
+        input_layer.append(nn.Linear(4096, 4096))
+        input_layer.append(nn.Linear(4096, 1))
+        ffc = nn.Sequential(*input_layer)
+        model_ft.fc = ffc
     input_size = 224
     return model_ft, input_size
 
 print("=> using pre-trained model '{}'".format(args.arch))
-model_pretrained = models.__dict__[args.arch](pretrained=use_pretrained)
-model_ft, input_size = initialize_model(model_pre = model_pretrained)
+model_pretrained = models.__dict__[args.arch](pretrained=True)
+model_ft, input_size = initialize_model(model_name = args.arch, model_pre = model_pretrained)
 
 # Print the model we just instantiated
 #print(model_ft)
@@ -268,6 +279,7 @@ model_ft = nn.DataParallel(model_ft)
 #  doing feature extract method, we will only update the parameters
 #  that we have just initialized, i.e. the parameters with requires_grad
 #  is True.
+feature_extract = False
 params_to_update = model_ft.parameters()
 print("Params to learn:")
 if feature_extract:
@@ -285,8 +297,8 @@ else:
 optimizer_ft = optim.SGD(params_to_update, lr=args.learning_rate, momentum=0.9)
 
 # Setup the loss fxn
-criterion = nn.L1Loss()
-
+#criterion = nn.L1Loss()
+criterion = mean_absolute_percentage_error()
 # Train and evaluate
 model_ft, hist_val, hist_train = train_model(model_ft, data_loader_all, criterion, optimizer_ft, num_epochs=args.num_epochs, is_inception=False)
 
