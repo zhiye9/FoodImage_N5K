@@ -191,7 +191,7 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_ince
             #epoch_acc = runing_loss_per / len(dataloaders[phase].dataset)
             #epoch_acc = running_corrects.double() / len(dataloaders[phase].dataset)
 
-            print('{} Loss: {:.4f} MAPE'.format(phase, epoch_loss))
+            print('{} Loss: {:.4f} (MAPE) '.format(phase, epoch_loss))
             #print('{} Loss: {:.4f} MAE per: {:.4f}'.format(phase, epoch_loss, epoch_acc))
             time_elapsed = time.time() - since
             #print(time_elapsed)
