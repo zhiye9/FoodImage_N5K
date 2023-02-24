@@ -13,7 +13,7 @@ import copy
 print("PyTorch Version: ",torch.__version__)
 print("Torchvision Version: ",torchvision.__version__)
 print("CUDA Version:", torch.version.cuda)
-from torchmetrics.functional import mean_absolute_percentage_error
+from torchmetrics import MeanAbsolutePercentageError
 import PIL
 import argparse
 #import pandas as pd
@@ -27,6 +27,13 @@ import pickle
 # Ignore warnings
 import warnings
 warnings.filterwarnings("ignore")
+
+torch.cuda.empty_cache()
+#os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:64"
+
+model_names = sorted(name for name in models.__dict__
+    if name.islower() and not name.startswith("__")
+    and callable(models.__dict__[name]))
 
 def parse_option():
     parser = argparse.ArgumentParser('N5K Network')
@@ -211,7 +218,7 @@ def set_parameter_requires_grad(model, feature_extracting):
             param.requires_grad = False
 
 # Top level data directory. Here we assume the format of the directory conforms
-
+args = parse_option()
 # Batch size for training (change depending on how much memory you have)
 
 batch_size = args.batchsize
@@ -265,7 +272,7 @@ print("Initializing Datasets and Dataloaders...")
 #image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms[x]) for x in ['train', 'val']}
 # Create training and validation dataloaders
 #dataloaders_dict = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=True, num_workers=4) for x in ['train', 'val']}
-data_loader_all = load_data(args.img_path, args.train_dir, args.test_dir, batch_size = args.batchsize)
+data_loader_all = load_data(args.image_path, args.train_path, args.test_path, batch_size = args.batchsize)
 
 # Detect if we have a GPU available
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -273,7 +280,7 @@ print(device)
 
 # Send the model to GPU
 model_ft = model_ft.to(device)
-model_ft = nn.DataParallel(model_ft)
+#model_ft = nn.DataParallel(model_ft)
 # Gather the parameters to be optimized/updated in this run. If we are
 #  finetuning we will be updating all parameters. However, if we are
 #  doing feature extract method, we will only update the parameters
@@ -298,9 +305,9 @@ optimizer_ft = optim.SGD(params_to_update, lr=args.learning_rate, momentum=0.9)
 
 # Setup the loss fxn
 #criterion = nn.L1Loss()
-criterion = mean_absolute_percentage_error()
+criterion = MeanAbsolutePercentageError().to(device)
 # Train and evaluate
-model_ft, hist_val, hist_train = train_model(model_ft, data_loader_all, criterion, optimizer_ft, num_epochs=args.num_epochs, is_inception=False)
+model_ft, hist_val, hist_train = train_model(model_ft, data_loader_all, criterion, optimizer_ft, num_epochs=num_epochs, is_inception=False)
 
 torch.save(model_ft.state_dict(), args.output_dir)
 
