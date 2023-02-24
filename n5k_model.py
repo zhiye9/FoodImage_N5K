@@ -185,7 +185,7 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_ince
                 #runing_loss_per += loss_per.item()
                 #running_corrects += torch.sum(preds == labels.data)
                 i += 1
-                print("process{0}%".format((i+1)*100/len(dataloaders[phase])), end="\r")
+                print("process{0}".format((i+1)*100/len(dataloaders[phase])), end="\r")
                 
             epoch_loss = running_loss / len(dataloaders[phase].dataset)
             #epoch_acc = runing_loss_per / len(dataloaders[phase].dataset)
@@ -194,7 +194,7 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_ince
             print('{} Loss: {:.4f} MAPE'.format(phase, epoch_loss))
             #print('{} Loss: {:.4f} MAE per: {:.4f}'.format(phase, epoch_loss, epoch_acc))
             time_elapsed = time.time() - since
-            print(time_elapsed)
+            #print(time_elapsed)
             print('complete in {:.0f}m {:.0f}s' .format(time_elapsed // 60, time_elapsed % 60))
 
             # deep copy the model
@@ -309,7 +309,7 @@ criterion = MeanAbsolutePercentageError().to(device)
 # Train and evaluate
 model_ft, hist_val, hist_train = train_model(model_ft, data_loader_all, criterion, optimizer_ft, num_epochs=num_epochs, is_inception=False)
 
-torch.save(model_ft.state_dict(), args.output_dir)
+torch.save(model_ft.state_dict(), args.output_model)
 
 with open(args.output_val, "wb") as fp:
 	pickle.dump(hist_val, fp)
