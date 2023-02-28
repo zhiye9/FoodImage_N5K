@@ -1,5 +1,10 @@
 from __future__ import print_function
 from __future__ import division
+#try:
+#    import torchmetrics
+#except Exception:
+#    pass
+#from torchmetrics import MeanAbsolutePercentageError
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -13,7 +18,6 @@ import copy
 print("PyTorch Version: ",torch.__version__)
 print("Torchvision Version: ",torchvision.__version__)
 print("CUDA Version:", torch.version.cuda)
-from torchmetrics import MeanAbsolutePercentageError
 import PIL
 import argparse
 #import pandas as pd
@@ -304,8 +308,8 @@ else:
 optimizer_ft = optim.SGD(params_to_update, lr=args.learning_rate, momentum=0.9)
 
 # Setup the loss fxn
-#criterion = nn.L1Loss()
-criterion = MeanAbsolutePercentageError().to(device)
+criterion = nn.L1Loss()
+#criterion = MeanAbsolutePercentageError().to(device)
 # Train and evaluate
 model_ft, hist_val, hist_train = train_model(model_ft, data_loader_all, criterion, optimizer_ft, num_epochs=num_epochs, is_inception=False)
 
