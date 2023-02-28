@@ -13,7 +13,6 @@ import copy
 print("PyTorch Version: ",torch.__version__)
 print("Torchvision Version: ",torchvision.__version__)
 print("CUDA Version:", torch.version.cuda)
-from torchmetrics import MeanAbsolutePercentageError
 import PIL
 import argparse
 #import pandas as pd
