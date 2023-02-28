@@ -305,7 +305,7 @@ optimizer_ft = optim.SGD(params_to_update, lr=args.learning_rate, momentum=0.9)
 
 # Setup the loss fxn
 #criterion = nn.L1Loss()
-criterion = MeanAbsolutePercentageError().to(device)
+criterion = nn.L1Loss()
 # Train and evaluate
 model_ft, hist_val, hist_train = train_model(model_ft, data_loader_all, criterion, optimizer_ft, num_epochs=num_epochs, is_inception=False)
 

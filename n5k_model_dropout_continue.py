@@ -259,7 +259,7 @@ def initialize_model(model_name, model_pre, feature_extract = False, use_pretrai
 print("=> using pre-trained model swin_b 150 epch without dropout")
 
 #print("=> using pre-trained model '{}'".format(args.arch))
-model_pretrained = models.__dict__[args.arch](weights='IMAGENET1K_V1', dropout = 0.2)
+model_pretrained = models.__dict__[args.arch](dropout = 0.2)
 model_ft, input_size = initialize_model(model_name = args.arch, model_pre = model_pretrained)
 model_ft.load_state_dict(torch.load(args.weight_path))
 model_ft.eval()
@@ -310,7 +310,7 @@ optimizer_ft = optim.SGD(params_to_update, lr=args.learning_rate, momentum=0.9)
 
 # Setup the loss fxn
 #criterion = nn.L1Loss()
-criterion = MeanAbsolutePercentageError().to(device)
+criterion = nn.L1Loss()
 # Train and evaluate
 model_ft, hist_val, hist_train = train_model(model_ft, data_loader_all, criterion, optimizer_ft, num_epochs=num_epochs, is_inception=False)
 
@@ -320,3 +320,4 @@ with open(args.output_val, "wb") as fp:
 	pickle.dump(hist_val, fp)
 with open(args.output_train, "wb") as fp:
         pickle.dump(hist_train, fp)
+
