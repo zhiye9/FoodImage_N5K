@@ -229,7 +229,7 @@ num_epochs = args.epoch
 # Flag for feature extracting. When False, we finetune the whole model,
 #   when True we only update the reshaped layer params
  
-def initialize_model(model_name, model_pre, feature_extract = False, use_pretrained=True):
+def initialize_model(model_name, model_pre, feature_extract = False, use_pretrained=True, dropout = 0.2):
     model_ft = model_pre
     set_parameter_requires_grad(model_ft, feature_extract)
     # Handle the auxilary net
@@ -244,6 +244,7 @@ def initialize_model(model_name, model_pre, feature_extract = False, use_pretrai
         input_layer.append(nn.Linear(4096, 1))
         ffc = nn.Sequential(*input_layer)
         model_ft.head = ffc
+
     else:
         num_ftrs = model_ft.fc.in_features
         input_layer = [] 
@@ -256,7 +257,7 @@ def initialize_model(model_name, model_pre, feature_extract = False, use_pretrai
     return model_ft, input_size
 
 print("=> using pre-trained model '{}'".format(args.arch))
-model_pretrained = models.__dict__[args.arch](weights='IMAGENET1K_V1')
+model_pretrained = models.__dict__[args.arch](weights='IMAGENET1K_V1', dropout = 0.2)
 model_ft, input_size = initialize_model(model_name = args.arch, model_pre = model_pretrained)
 
 # Print the model we just instantiated

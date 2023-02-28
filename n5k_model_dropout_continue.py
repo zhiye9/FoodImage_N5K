@@ -42,6 +42,7 @@ def parse_option():
     parser.add_argument('--image_path', type=str, default="/home/projects/cu_10108/data/Generated/ye_food_img/N5K/", help='path to N5K dataset')
     parser.add_argument("--train_path", type=str, default="/home/projects/cu_10108/data/Generated/ye_food_img/incept_v3/df_train_all_id.txt", help='path to training list')
     parser.add_argument("--test_path", type=str, default="/home/projects/cu_10108/data/Generated/ye_food_img/incept_v3/df_test_all_id.txt", help='path to testing list')
+    parser.add_argument('--weight_path', help='path to the checkpoint')
     parser.add_argument('--output_model', type=str, help='Name of output model')
     parser.add_argument('--output_val', type=str, help='Name of output val')
     parser.add_argument('--output_train', type=str, help='Name of output train')
@@ -229,7 +230,7 @@ num_epochs = args.epoch
 # Flag for feature extracting. When False, we finetune the whole model,
 #   when True we only update the reshaped layer params
  
-def initialize_model(model_name, model_pre, feature_extract = False, use_pretrained=True):
+def initialize_model(model_name, model_pre, feature_extract = False, use_pretrained=True, dropout = 0.2):
     model_ft = model_pre
     set_parameter_requires_grad(model_ft, feature_extract)
     # Handle the auxilary net
@@ -244,6 +245,7 @@ def initialize_model(model_name, model_pre, feature_extract = False, use_pretrai
         input_layer.append(nn.Linear(4096, 1))
         ffc = nn.Sequential(*input_layer)
         model_ft.head = ffc
+
     else:
         num_ftrs = model_ft.fc.in_features
         input_layer = [] 
@@ -255,9 +257,13 @@ def initialize_model(model_name, model_pre, feature_extract = False, use_pretrai
     input_size = 224
     return model_ft, input_size
 
-print("=> using pre-trained model '{}'".format(args.arch))
-model_pretrained = models.__dict__[args.arch](weights='IMAGENET1K_V1')
+print("=> using pre-trained model swin_b 150 epch without dropout")
+
+#print("=> using pre-trained model '{}'".format(args.arch))
+model_pretrained = models.__dict__[args.arch](weights='IMAGENET1K_V1', dropout = 0.2)
 model_ft, input_size = initialize_model(model_name = args.arch, model_pre = model_pretrained)
+model_ft.load_state_dict(torch.load(args.weight_path))
+model_ft.eval()
 
 # Print the model we just instantiated
 #print(model_ft)
