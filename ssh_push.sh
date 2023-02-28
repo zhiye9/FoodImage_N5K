@@ -1,3 +1,3 @@
 #!/bin/bash 
-sh-agent -s)"
+eval `ssh-agent -s`
 ssh-add -k ~/.ssh/git
