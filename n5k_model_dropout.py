@@ -47,6 +47,7 @@ def parse_option():
     parser.add_argument("--learning_rate", default=1e-4, type=float, help="The initial learning rate for SGD.")
     parser.add_argument("--epoch", default=5, type=int, help="The number of epochs.")
     parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet152', choices=model_names, help='model architecture: ' + ' | '.join(model_names) + ' (default: resnet152)')
+    parser.add_argument('--is_inception', dest='feature', default=False, action='store_true')
     args, unparsed = parser.parse_known_args()
     return args
 
@@ -219,8 +220,9 @@ def set_parameter_requires_grad(model, feature_extracting):
 # Top level data directory. Here we assume the format of the directory conforms
 args = parse_option()
 # Batch size for training (change depending on how much memory you have)
-
 batch_size = args.batchsize
+
+is_inception = args.is_inception
 
 # Number of epochs to train for
 num_epochs = args.epoch
