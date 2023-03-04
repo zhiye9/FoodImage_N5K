@@ -94,7 +94,7 @@ class MyDataset(torch.utils.data.Dataset):
         # if the multilabel can be the list to torch.tensor
 
 
-def load_data(image_path, train_dir, test_dir, batch_size):
+def load_data(image_path, train_dir, test_dir, batch_size, input_size):
     data_transforms = {
         'train': transforms.Compose([
             transforms.RandomResizedCrop(input_size),
@@ -245,8 +245,15 @@ def initialize_model(model_name, model_pre, feature_extract = False, use_pretrai
         input_layer.append(nn.Linear(4096, 1))
         ffc = nn.Sequential(*input_layer)
         model_ft.head = ffc
-
-    else:
+        input_size = 224
+    elif model_name.startswith('inception_v3'):
+        num_ftrs = model_ft.AuxLogits.fc.in_features
+        input_layer = [] 
+        input_layer.append(nn.Linear(num_ftrs, 4096))
+        input_layer.append(nn.Linear(4096, 4096))
+        input_layer.append(nn.Linear(4096, 1))
+        ffc = nn.Sequential(*input_layer)
+        model_ft.AuxLogits.fc = ffc
         num_ftrs = model_ft.fc.in_features
         input_layer = [] 
         input_layer.append(nn.Linear(num_ftrs, 4096))
@@ -254,7 +261,16 @@ def initialize_model(model_name, model_pre, feature_extract = False, use_pretrai
         input_layer.append(nn.Linear(4096, 1))
         ffc = nn.Sequential(*input_layer)
         model_ft.fc = ffc
-    input_size = 224
+        input_size = 299       
+    else:    
+        num_ftrs = model_ft.fc.in_features
+        input_layer = [] 
+        input_layer.append(nn.Linear(num_ftrs, 4096))
+        input_layer.append(nn.Linear(4096, 4096))
+        input_layer.append(nn.Linear(4096, 1))
+        ffc = nn.Sequential(*input_layer)
+        model_ft.fc = ffc
+        input_size = 224
     return model_ft, input_size
 
 print("=> using pre-trained model '{}'".format(args.arch))
@@ -274,7 +290,7 @@ print("Initializing Datasets and Dataloaders...")
 #image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms[x]) for x in ['train', 'val']}
 # Create training and validation dataloaders
 #dataloaders_dict = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=True, num_workers=4) for x in ['train', 'val']}
-data_loader_all = load_data(args.image_path, args.train_path, args.test_path, batch_size = args.batchsize)
+data_loader_all = load_data(args.image_path, args.train_path, args.test_path, batch_size = batch_size, input_size = input_size)
 
 # Detect if we have a GPU available
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -297,10 +313,10 @@ if feature_extract:
         if param.requires_grad == True:
             params_to_update.append(param)
             print("\t",name)
-else:
-    for name,param in model_ft.named_parameters():
-        if param.requires_grad == True:
-            print("\t",name)
+#else:
+  #  for name,param in model_ft.named_parameters():
+   #     if param.requires_grad == True:
+    #        print("\t",name)
 
 # Observe that all parameters are being optimized
 optimizer_ft = optim.SGD(params_to_update, lr=args.learning_rate, momentum=0.9)

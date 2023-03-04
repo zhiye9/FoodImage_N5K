@@ -59,6 +59,21 @@ model.to(device)
 image_path = "/home/zhi/nas/food_img/Nutrition5k/imagery/side_angles/"
 train_path = "/home/zhi/nas/food_img/Nutrition_pred/incept_v3/df_train_all_id.txt"
 test_path = "/home/zhi/nas/food_img/Nutrition_pred/incept_v3/df_test_all_id.txt"
+args.image_path = "/home/zhi/nas/food_img/Nutrition5k/imagery/side_angles/"
+args.train_path = "/home/zhi/nas/food_img/Nutrition_pred/incept_v3/df_train_all_id.txt"
+args.test_path = "/home/zhi/nas/food_img/Nutrition_pred/incept_v3/df_test_all_id.txt"
+
+batch_size = 4
+is_inception = True
+num_epochs = 5
+args.arch = 'inception_v3'
+learning_rate = 1e-4
+phase = 'train'
+optimizer = optim.SGD(params_to_update, lr=learning_rate, momentum=0.9)
+
+
+dataloaders = load_data(image_path,train_path, test_path, batch_size = batch_size, input_size = input_size)
+
 
 #data_loader_all = load_data(image_path, train_path, test_path, batch_size = 1)
 
