@@ -329,7 +329,7 @@ class MAPELoss(nn.Module):
 
     def forward(self, output, target):
         epsilon = np.finfo(np.float64).eps
-        return torch.mean(torch.abs((target - output) / torch.maximum(target, torch.full_like(target, epsilon))))
+        return torch.mean(torch.log(torch.abs((target - output) / torch.maximum(target, torch.full_like(target, epsilon)))))
 
 criterion = MAPELoss()
 #print(criterion)
