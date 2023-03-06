@@ -49,7 +49,7 @@ def set_parameter_requires_grad(model, feature_extracting):
             param.requires_grad = False
 
 PATH = "/home/zhi/nas/N5K/results/results/checkpoint_150_lr001_swin_b.pth"
-model_pretrained = models.__dict__['swin_b'](pretrained=True)
+model_pretrained = models.__dict__['swin_b'](pretrained=True, dropout = 0.2)
 model_ft, input_size = initialize_model(model_name = 'swin_b', model_pre = model_pretrained)
 model = model_ft
 model.load_state_dict(torch.load(PATH))
@@ -71,9 +71,9 @@ learning_rate = 1e-4
 phase = 'train'
 optimizer = optim.SGD(params_to_update, lr=learning_rate, momentum=0.9)
 
-
 dataloaders = load_data(image_path,train_path, test_path, batch_size = batch_size, input_size = input_size)
 
+------------------------------------------------------------------------------------------------------------
 
 #data_loader_all = load_data(image_path, train_path, test_path, batch_size = 1)
 
@@ -102,3 +102,62 @@ img_tf = img_tf.unsqueeze(0).to(device)
 model(img_tf)
 
 img
+
+-------------------------------------------------------------------------------------------------------
+
+txt_dir =  "/home/zhi/nas/food_img/Nutrition_pred/incept_v3/df_train_all_id.txt"
+
+
+def img_loader(path):
+    return PIL.Image.open(path).convert('RGB')
+
+class MyDataset(torch.utils.data.Dataset):
+
+    def __init__(self, txt_dir, image_path, transform=None, target_transform=None, loader=img_loader):
+        data_txt = open(txt_dir, 'r')
+        imgs = []
+        for line in data_txt:
+            line = line.strip()
+            words = line.split(',')
+            if (os.path.isfile(image_path + words[0])):
+                imgs.append((words[0], float(words[1].strip())))
+        self.imgs = imgs
+        self.transform = transform
+        self.target_transform = target_transform
+        self.loader = img_loader
+        self.image_path = image_path
+    def __len__(self):
+
+        return len(self.imgs)
+
+    def __getitem__(self, index):
+        img_name, label = self.imgs[index]
+        # label = list(map(int, label))
+        # print label
+        # print type(label)
+        #img = self.loader('/home/vipl/llh/food101_finetuning/food101_vgg/origal_data/images/'+img_name.replace("\\","/"))
+        img = self.loader(self.image_path + img_name)
+
+        # print img
+        if self.transform is not None:
+            img = self.transform(img)
+            # print img.size()
+            # label =torch.Tensor(label)
+
+            # print label.size()
+        return img, label
+        # if the label is the single-label it can be the int
+        # if the multilabel can be the list to torch.tensor
+
+target = torch.tensor([1, 10, 1e6])
+preds = torch.tensor([0.9, 15, 1.2e6])
+
+class MAPELoss(nn.Module):
+    def __init__(self):
+        super(MAPELoss, self).__init__()
+
+    def forward(self, output, target):
+        epsilon = np.finfo(np.float64).eps
+        return torch.mean(torch.abs((target - output) / torch.maximum(target, torch.full_like(target, epsilon))))
+
+MAPELoss(preds, target)
