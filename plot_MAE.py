@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 PATH_train = "/home/zhi/data/FoodImage_N5K/results/hist_150_continue_150_dropout02_train_lr1e-4_swin_b"
 PATH_test = "/home/zhi/data/FoodImage_N5K/results/hist_150_continue_150_dropout02_val_lr1e-4_swin_b"
 
-PATH_train = "/home/zhi/data/FoodImage_N5K/results/hist_150_dropout_train_lr1e-4_swin_b"
-PATH_test = "/home/zhi/data/FoodImage_N5K/results/hist_150_dropout_val_lr1e-4_swin_b"
+PATH_train = "/home/zhi/data/FoodImage_N5K/results/hist_150_dropout_train_lr1e-4_inception_v3"
+PATH_test = "/home/zhi/data/FoodImage_N5K/results/hist_150_dropout_val_lr1e-4_inception_v3"
 
 with open(PATH_train, "rb") as fp:
     hist_50 = pickle.load(fp)
