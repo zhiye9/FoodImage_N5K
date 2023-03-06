@@ -332,7 +332,7 @@ class MAPELoss(nn.Module):
         return torch.mean(torch.abs((target - output) / torch.maximum(target, torch.full_like(target, epsilon))))
 
 criterion = MAPELoss()
-print(criterion)
+#print(criterion)
 # Train and evaluate
 model_ft, hist_val, hist_train = train_model(model_ft, data_loader_all, criterion, optimizer_ft, num_epochs=num_epochs, is_inception=is_inception)
 
