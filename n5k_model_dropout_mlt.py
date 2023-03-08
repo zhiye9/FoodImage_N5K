@@ -39,8 +39,8 @@ def parse_option():
 
     parser.add_argument('--batchsize', default=32, type=int, help="batch size for single GPU")
     parser.add_argument('--image_path', type=str, default="/home/projects/cu_10108/data/Generated/ye_food_img/N5K/", help='path to N5K dataset')
-    parser.add_argument("--train_path", type=str, default="/home/projects/cu_10108/data/Generated/ye_food_img/incept_v3/df_train_all_id.txt", help='path to training list')
-    parser.add_argument("--test_path", type=str, default="/home/projects/cu_10108/data/Generated/ye_food_img/incept_v3/df_test_all_id.txt", help='path to testing list')
+    parser.add_argument("--train_path", type=str, default="/home/projects/cu_10108/data/Generated/ye_food_img/incept_v3/df_train_all_id_carbs.txt", help='path to training list')
+    parser.add_argument("--test_path", type=str, default="/home/projects/cu_10108/data/Generated/ye_food_img/incept_v3/df_test_all_id_carbs.txt", help='path to testing list')
     parser.add_argument('--output_model', type=str, help='Name of output model')
     parser.add_argument('--output_val', type=str, help='Name of output val')
     parser.add_argument('--output_train', type=str, help='Name of output train')
