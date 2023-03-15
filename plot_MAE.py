@@ -1,11 +1,8 @@
 import pickle
 import matplotlib.pyplot as plt
 
-PATH_train = "/home/zhi/data/FoodImage_N5K/results/hist_150_continue_150_dropout02_train_lr1e-4_swin_b"
-PATH_test = "/home/zhi/data/FoodImage_N5K/results/hist_150_continue_150_dropout02_val_lr1e-4_swin_b"
-
-PATH_train = "/home/zhi/data/FoodImage_N5K/results/hist_75_MAPE_train_lr1e-4_swin_b"
-PATH_test = "/home/zhi/data/FoodImage_N5K/results/hist_75_MAPE_val_lr1e-4_swin_b"
+PATH_train = "/home/zhi/data/FoodImage_N5K/results/hist_150_MAPE_train_lr1e-4_swin_b"
+PATH_test = "/home/zhi/data/FoodImage_N5K/results/hist_150_MAPE_val_lr1e-4_swin_b"
 
 with open(PATH_train, "rb") as fp:
     hist_50 = pickle.load(fp)
@@ -17,7 +14,7 @@ hist1 = []
 hist1 = [h for h in hist_50]
 hist2 = []
 hist2 = [h for h in hist_50_lr0001]
-num_epochs = 60
+num_epochs = 150
 
 import matplotlib as mpl
 mpl.rcParams['figure.dpi'] = 600
