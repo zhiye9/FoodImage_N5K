@@ -39,8 +39,8 @@ def parse_option():
 
     parser.add_argument('--batchsize', default=32, type=int, help="batch size for single GPU")
     parser.add_argument('--image_path', type=str, default="/home/projects/cu_10108/data/Generated/ye_food_img/N5K/", help='path to N5K dataset')
-    parser.add_argument("--train_path", type=str, default="/home/projects/cu_10108/data/Generated/ye_food_img/incept_v3/df_train_all_id_carbs.txt", help='path to training list')
-    parser.add_argument("--test_path", type=str, default="/home/projects/cu_10108/data/Generated/ye_food_img/incept_v3/df_test_all_id_carbs.txt", help='path to testing list')
+    parser.add_argument("--train_path", type=str, default="/home/projects/cu_10108/data/Generated/ye_food_img/incept_v3/FoodImage_N5K/data_id/df_train_all_id_carbs.txt", help='path to training list')
+    parser.add_argument("--test_path", type=str, default="/home/projects/cu_10108/data/Generated/ye_food_img/incept_v3/FoodImage_N5K/data_id/df_test_all_id_carbs.txt", help='path to testing list')
     parser.add_argument('--output_model', type=str, help='Name of output model')
     parser.add_argument('--output_val', type=str, help='Name of output val')
     parser.add_argument('--output_train', type=str, help='Name of output train')
@@ -322,15 +322,15 @@ if feature_extract:
 optimizer_ft = optim.SGD(params_to_update, lr=args.learning_rate, momentum=0.9)
 
 # Setup the loss fxn
-criterion = nn.L1Loss()
-#class MAPELoss(nn.Module):
-#    def __init__(self):
- #       super(MAPELoss, self).__init__()
-#
- #   def forward(self, output, target):
-  #      epsilon = np.finfo(np.float64).eps
-   #     return torch.mean(torch.log(torch.abs((target - output) / torch.maximum(target, torch.full_like(target, epsilon)))))
-#criterion = MAPELoss()
+#criterion = nn.L1Loss()
+class MAPELoss(nn.Module):
+    def __init__(self):
+        super(MAPELoss, self).__init__()
+
+    def forward(self, output, target):
+        epsilon = np.finfo(np.float64).eps
+        return torch.mean(torch.log(torch.abs((target - output) / torch.maximum(target, torch.full_like(target, epsilon)))))
+criterion = MAPELoss()
 #print(criterion)
 # Train and evaluate
 model_ft, hist_val, hist_train = train_model(model_ft, data_loader_all, criterion, optimizer_ft, num_epochs=num_epochs, is_inception=is_inception)
