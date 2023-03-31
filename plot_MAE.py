@@ -1,8 +1,8 @@
 import pickle
 import matplotlib.pyplot as plt
 
-PATH_train = "/home/zhi/data/FoodImage_N5K/results/hist_150_MAPE_train_lr1e-4_swin_b"
-PATH_test = "/home/zhi/data/FoodImage_N5K/results/hist_150_MAPE_val_lr1e-4_swin_b"
+PATH_train = "/home/zhi/data/FoodImage_N5K/results/hist_150_train_lr1e-4_calories_swin_b"
+PATH_test = "/home/zhi/data/FoodImage_N5K/results/hist_150_val_lr1e-4_calories_swin_b"
 
 with open(PATH_train, "rb") as fp:
     hist_50 = pickle.load(fp)
@@ -19,9 +19,9 @@ num_epochs = 150
 import matplotlib as mpl
 mpl.rcParams['figure.dpi'] = 600
 
-plt.title("Swin-transformer with log MAPE")
+plt.title("Swin-transformer for fat")
 plt.xlabel("Training Epochs")
-plt.ylabel("logMAPE")
+plt.ylabel("MAE")
 plt.plot(range(1,num_epochs+1),hist1,label="Training MAE (150 Epochs with lr 1e-4)")
 plt.plot(range(1,num_epochs+1),hist2,label="Validation MAE (150 Epochs with lr 1e-4)")
 #plt.yticks([])
