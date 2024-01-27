@@ -47,7 +47,7 @@ def parse_option():
     parser.add_argument("--learning_rate", default=1e-4, type=float, help="The initial learning rate for SGD.")
     parser.add_argument("--epoch", default=5, type=int, help="The number of epochs.")
     parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet152', choices=model_names, help='model architecture: ' + ' | '.join(model_names) + ' (default: resnet152)')
-    parser.add_argument('--is_inception', action='store_true')
+    parser.add_argument('--is_inception', default=False, action='store_true')
     args, unparsed = parser.parse_known_args()
     return args
 
